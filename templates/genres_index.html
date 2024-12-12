@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Genres</title>
+    <script>
+        // Populate genres dropdown
+        document.addEventListener("DOMContentLoaded", function () {
+            fetch('/get_genres')
+                .then(response => response.json())
+                .then(data => {
+                    let dropdown = document.getElementById('genreDropdown');
+                    dropdown.innerHTML = '<option value="">Select a genre</option>';
+                    data.forEach(genre => {
+                        let option = document.createElement('option');
+                        option.value = genre.id;
+                        option.text = genre.name;
+                        dropdown.add(option);
+                    });
+                })
+                .catch(err => console.error('Error loading genres:', err));
+        });
+
+
+        // Add a new genre
+        function addGenre() {
+            const genreName = document.getElementById('newGenre').value;
+            fetch('/add_genre', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name: genreName })
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message || data.error));
+        }
+
+        // Generate report
+        function generateReport() {
+            fetch('/report')
+                .then(response => response.json())
+                .then(data => {
+                    let reportDiv = document.getElementById('report');
+                    reportDiv.innerHTML = '<h2>Genre Report</h2>';
+                    data.forEach(item => {
+                        reportDiv.innerHTML += `<p>Genre ID: ${item['Genre ID']}, Genre Name: ${item['Genre Name']}</p>`;
+                    });
+                });
+        }
+    </script>
+</head>
+<body>
+    <h1>Library Genres</h1>
+    <select id="genreDropdown"></select>
+    <br><br>
+    <input type="text" id="newGenre" placeholder="New Genre">
+    <button onclick="addGenre()">Add Genre</button>
+    <br><br>
+    <button onclick="generateReport()">Generate Report</button>
+    <div id="report"></div>
+</body>
+</html>
